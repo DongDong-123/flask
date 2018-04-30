@@ -1,0 +1,99 @@
+{% extends 'home/index.html' %}
+    {% block title %}
+    <title>首页</title>
+     <link rel="icon" type="image/png" href="/static/assets/i/favicon.png">
+    <link rel="apple-touch-icon-precomposed" href="/static/assets/i/app-icon72x72@2x.png">
+    <meta name="apple-mobile-web-app-title" content="Amaze UI" />
+    <script src="/static/assets/js/echarts.min.js"></script>
+    <link rel="stylesheet" href="/static/assets/css/amazeui.min.css" />
+    <link rel="stylesheet" href="/static/assets/css/amazeui.min.css" />
+    <link rel="stylesheet" href="/static/assets/css/app.css">
+    <script src="/static/assets/js/jquery.min.js"></script>
+    <style type="text/css" media="screen">
+    	.container-fluid{
+    		padding-top: 0;
+    		padding-bottom: 0;
+    	}
+    </style>
+    {% endblock %}
+
+    {% block con %}
+   
+    <div class="left-sidebar">
+        <!-- 用户信息 -->
+        <div class="tpl-sidebar-user-panel">
+            <div class="tpl-user-panel-slide-toggleable">
+                <div class="tpl-user-panel-profile-picture">
+                    <img src="/static/public/img/{{ uinfo.face }}" alt=""> </div>
+                <span class="user-panel-logged-in-text">
+                    <i class="am-icon-circle-o am-text-success tpl-user-panel-status-icon">
+                    </i>
+                </span>
+                <a href="javascript:;" class="tpl-user-panel-action-link">
+                    <span class="am-icon-pencil"></span>账号设置
+                </a>
+            </div>
+        </div>
+        <!-- 菜单 -->
+        <ul class="sidebar-nav">
+            <li class="sidebar-nav-link">
+                <a href="" class="active">
+                    <i class="am-icon-home sidebar-nav-link-logo">
+                    </i> 首页
+                </a>
+            </li>
+            <li class="sidebar-nav-heading">
+                <span class="sidebar-nav-heading-info"> 常用页面
+                </span>
+            </li>
+            <!-- 会员管理 -->
+            <li style="margin-left: 28px;margin-bottom: 20px;">
+                <a href="" class=" sidebar-nav-sub-title"  style="color:#868E8E;">
+                    <i class="am-icon-table sidebar-nav-link-logo"></i> 个人资料修改
+                    
+                </a>
+            </li>
+            <!-- 分类管理 -->
+           
+            <!-- <li style="margin-left: 28px;">
+                <a href="" class="sidebar-nav-sub-title" style="color:#868E8E;">
+                    <i class="am-icon-table sidebar-nav-link-logo"></i> 分类管理
+                   
+                </a>
+            </li> -->
+        </ul>
+    </div>
+    {% endblock %}
+
+    {% block flaots %}
+    <div style="margin-top: 100px;">
+        <center  >
+            <table style="width: 400px;height: 350px;">
+                <tr>
+                <th>个人资料</th>
+                </tr>
+                <tr>
+                    <td>用户名:</td>
+                    <td>{{ uinfo.name }}</td>
+                </tr>
+                <tr>
+                    <td>密码:</td>
+                    <td>mima</td>
+                </tr>
+                <tr>
+                    <td>Email:</td>
+                    <td>{{ uinfo.email }}</td>
+                </tr>
+                <tr>
+                    <td>手机:</td>
+                    <td>{{ uinfo.phone }}</td>
+                </tr>
+
+            </table>
+                <a href="">修改资料</a>
+
+        </center>
+        </div>
+
+
+    {% endblock %}

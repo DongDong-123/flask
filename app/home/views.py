@@ -1,0 +1,285 @@
+from . import home
+from flask import request,render_template,session,abort
+from app.models import *
+import hashlib,os,json,time,random,re
+
+
+# 限制登录
+@home.before_request
+def check_login():
+    # 判断跳转的页面是否需要登录
+    urllist = ['/write/']
+    if request.path in urllist:
+        # 判断是否登录
+        if not session.get('VipUsers',None):
+            # 跳转到登录页面
+            return '<script>alert("请先登录");location.href="/login"</script>'
+
+# 首页
+@home.route("/")
+def index():
+    arts = db.session.query(Article,Types,Users)\
+    .filter(Article.type_id == Types.id)\
+    .filter(Article.uid == Users.id)\
+    .filter(Article.status == 1)\
+    .order_by(Article.addtime.desc()).all()
+    print(arts)
+
+    return render_template('home/index.html',arts=arts)
+
+
+#注册
+@home.route("/register",methods=['GET',"POST"])
+def register():
+    if request.method=='GET':
+        # 返回注册页面
+        return render_template('home/login/register.html')
+    else:
+        u = Users()
+        u.name = request.form['username']
+        u.pwd = u.md5password(request.form['password'])
+        u.email = request.form['email']
+        u.phone = request.form['phone']
+        # 执行添加
+        db.session.add(u)
+        db.session.commit()
+       
+        # 执行注册
+        return '<script>alert("注册成功,请登录");location.href="/login"</script>'
+
+# 登录
+@home.route("/login",methods=['GET',"POST"])
+def login():
+    if request.method == 'GET':
+        return render_template('home/login/login.html')
+
+    else:
+        # 获取用户名
+        u = Users.query.filter_by(name=request.form['username']).first()
+        if u:
+            # 验证密码
+            # if u.pwd ==request.form['password']:
+            if u.checkpassword(request.form['password']):
+                # 写入session
+                session['VipUsers'] = {'uid':u.id,'uname':u.name}
+
+                return '<script>alert("登录成功");location.href="/"</script>'
+
+
+# 个人中心
+@home.route("/personal/<uid>")
+def personal(uid):
+    print('11')
+    # uinfo = db.session.query(Users).get(id=uid)
+    uinfo = db.session.query(Users).filter_by(id=int(uid)).first()
+    print('uinfo',uinfo)
+
+    return render_template("home/personal.html",uinfo=uinfo )
+
+# 发布博文
+@home.route("/write/",methods=['GET',"POST"])
+def write():
+    if request.method == "GET":
+        return render_template('home/myblog/add.html')
+
+    else:
+        # 发布文章
+        try:
+            a = Article()
+            a.title = request.form['title']    
+            a.context = request.form['content']
+            a.type_id = request.form['pid']
+            a.uid = session['VipUsers']['uid']
+            db.session.add(a)
+            db.session.commit()
+        except:
+            db.session.rollback()
+
+            return '文章发布失败'
+        # 创建标签
+        try:
+            ts = request.form['tags'].split(',')
+            tagsarr = []
+            for x in ts:
+                tags = Tags.query.filter_by(tagname=x,uid=session['VipUsers']['uid']).first()
+                if tags:
+                    tagsarr.append(tags.id)
+                else:
+                    t= Tags()
+                    t.uid = session['VipUsers']['uid']
+                    t.tagname = x
+                    db.session.add(t)
+                    db.session.commit()
+                    tagsarr.append(t.id)
+        except:
+            db.session.rollback()
+            return '标签创建失败'
+        # 标签关联文章
+        try:
+            for x in tagsarr:
+                at = Ats()
+                at.article_id = a.id
+                at.tags_id = x
+                db.session.add(at)
+                db.session.commit()
+        except:
+            db.session.rollback()
+            return '标签和文章关系创建失败'
+
+        uname = session['VipUsers']['uname']
+        return '<script>alert("文章发布成功");location.href="/'+uname+'/"</script>'
+
+# 获取分类
+@home.route('/gettypes/<pid>')
+def gettypes(pid):
+    ts = Types.query.filter_by(pid=pid).all()
+
+    arr = []
+    for x in ts:
+        data = {'id':x.id,'tname':x.tname,'pid':x.pid}
+        arr.append(data)
+
+    jsts = json.dumps(arr)
+    return jsts
+
+
+@home.route("/edit/<aid>/")
+def edit(aid):
+    infos = db.session.query(Article,Tags)\
+    .filter(Article.uid == Users.id)\
+    .filter(Article.id == aid)\
+    .first()
+    print('infos',infos)
+    print('infos.Tags.tagname',infos.Tags.tagname)
+    print('infos.Article.title',infos.Article.title)
+    print('infos.Article.context',infos.Article.context)
+
+    return render_template("home/myblog/edit.html",infos=infos)
+
+@home.route("/Aupdate/<aid>",methods=['GET',"POST"])
+def Aupdate(aid):
+    # 发布修改文章
+    try:
+        a = db.session.query(Article).filter(Article.id == aid).first()
+        a.title = request.form['title']    
+        a.context = request.form['content']
+        a.type_id = request.form['pid']
+        a.uid = session['VipUsers']['uid']
+        db.session.add(a)
+        db.session.commit()
+    except:
+        db.session.rollback()
+
+        return '文章修改失败'
+    # 创建标签
+    try:
+        ts = request.form['tags'].split(',')
+        tagsarr = []
+        for x in ts:
+            tags = Tags.query.filter_by(tagname=x,uid=session['VipUsers']['uid']).first()
+            if tags:
+                tagsarr.append(tags.id)
+            else:
+                t= Tags()
+                t.uid = session['VipUsers']['uid']
+                t.tagname = x
+                db.session.add(t)
+                db.session.commit()
+                tagsarr.append(t.id)
+    except:
+        db.session.rollback()
+        return '标签创建失败'
+    # 标签关联文章
+    try:
+        for x in tagsarr:
+            at = Ats()
+            at.article_id = a.id
+            at.tags_id = x
+            db.session.add(at)
+            db.session.commit()
+    except:
+        db.session.rollback()
+        return '标签和文章关系创建失败'
+
+    uname = session['VipUsers']['uname']
+    return '<script>alert("文章修改成功");location.href="/'+uname+'/"</script>'
+
+
+
+
+
+    # return 'update'
+
+
+# 博文详情,
+@home.route("/<name>/p/<aid>",methods=['GET','POST'])
+def bloginfo(name,aid):
+    if request.method == "GET":
+        # 根据id查数据 
+        info = db.session.query(Article,Users,Types)\
+        .filter(Types.id == Article.type_id)\
+        .filter(Article.uid == Users.id)\
+        .filter(Article.id == aid)\
+        .first()
+    
+        # 获取所有标签
+        ts = db.session.query(Ats,Tags)\
+        .filter(Ats.article_id == aid)\
+        .filter(Ats.tags_id == Tags.id)\
+        .all()
+    
+        # 获取当前文章的评论
+        cons = db.session.query(Comment,Users)\
+        .filter(Comment.user_id == Users.id)\
+        .filter(Comment.article_id == aid)\
+        .all()
+
+        # 生成评论序号
+        cons = enumerate(cons,start=1)
+    
+        return render_template("home/myblog/bloginfos.html",Ainfo=info,ts=ts,cons=cons)
+    else:
+        # 接受评论并显示
+        c = Comment()
+        c.article_id = aid
+        c.user_id = session['VipUsers']['uid']
+        c.con = request.form['con']
+        c.to_id = request.form['toid']
+        db.session.add(c)
+        db.session.commit()
+
+        return '<script>alert("评论成功");location.href="";</script>'
+
+# 删除文章
+@home.route('/delatricle/<aid>/',methods=['GET',"POST"])
+def delatricle(aid):
+    dels = Article.query.filter_by(id=aid).first()
+    # 更改状态，实现逻辑删除
+    dels.status=2
+    db.session.add(dels)
+    db.session.commit()
+
+    return "<script>alert('删除成功');location.href='/'</script>"
+
+# 我的微博页面
+@home.route("/<name>/")
+def myblog(name):
+
+    u = Users.query.filter_by(name=name).first()
+
+    if u:
+        arts = db.session.query(Article,Types)\
+        .filter(Article.type_id == Types.id)\
+        .filter(Article.uid ==u.id)\
+        .filter(Article.status == 1)\
+        .all()
+
+        return render_template("home/myblog/index.html",uinfo=u,arts=arts)
+        
+    abort(404)
+
+# 退出登录
+@home.route('/logout')
+def logout():
+    session['VipUsers'] = {}
+    return "<script>alert('已退出登录');location.href='/'</script>"

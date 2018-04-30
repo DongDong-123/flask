@@ -1,0 +1,77 @@
+{% extends 'home/index.html' %} {% block title %}
+<title>发布新博客</title>
+{% endblock %} {% block con %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <form action="" method="post">
+                <div class="form-group">
+                    <label for="exampleInputEmail1">标题</label>
+                    <input type="text" name="title" class="form-control" id="exampleInputEmail1">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputEmail1">分类</label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <select class="form-control typesone">
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <select name="pid" class="form-control typestwo" style="display: none">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <script type="text/javascript">
+                $.get('/gettypes/0', function(data) {
+                    console.log('data1', data);
+                    s = '<option>请选择分类</option>';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value="' + data[i].id + '">' + data[i].tname + '</option>';
+                    };
+                    $('.typesone').html(s)
+                }, 'json');
+
+                $('.typesone').change(function() {
+                    // 获取当前选中的id值
+                    pid = $(this).val();
+
+                    $.get('/gettypes/' + pid, function(data) {
+                        console.log('data2', data);
+
+                        s = '';
+                        for (var i = 0; i < data.length; i++) {
+                            s += '<option value="' + data[i].id + '">' + data[i].tname + '</option>';
+                        };
+                        $('.typestwo').html(s);
+                        $('.typestwo').show();
+                    }, 'json');
+                });
+                </script>
+                <div class="form-group">
+                    <label for="exampleInputEmail1">标签:多个标签之间用逗号分隔</label>
+                    <input type="text" name="tags" class="form-control" id="exampleInputEmail1">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputEmail1">内容编辑</label>
+                    <!-- 配置文件 -->
+                    <script type="text/javascript" src="/static/ueditor/ueditor.config.js"></script>
+                    <!-- 编辑器源码文件 -->
+                    <script type="text/javascript" src="/static/ueditor/ueditor.all.js"></script>
+                    <!-- 加载编辑器的容器 -->
+                    <script id="container" name="content" type="text/plain">
+                        这里写你的初始化内容
+                    </script>
+                    <!-- 实例化编辑器 -->
+                    <script type="text/javascript">
+                    var ue = UE.getEditor('container', {
+                        serverUrl: '/ueditconfig/';
+                    });
+                    </script>
+                </div>
+                <button type="submit" class="btn btn-default">发布</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

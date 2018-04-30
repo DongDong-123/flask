@@ -1,0 +1,115 @@
+{% extends 'admin/index.html' %}
+	{% block css %}
+
+	<style type="text/css">
+	*{
+		margin:0;
+		padding:0;
+		list-style: none;
+	}
+	.demo{
+		width: 1000px;
+		height: 50px;
+		margin:0 auto;
+		position: relative;
+	}
+	.firstlayer li{
+		width: 500px;
+		height: 70px;
+		display: inline-block;
+		float: left;
+		box-sizing: border-box;
+		border-left: none;
+		cursor:pointer;
+		text-align: center;
+		line-height: 50px;
+ 	}
+ 	table th{text-align: center; }
+ 	.secondlayer li{
+ 		width: 200px;
+ 		height: 1000px;
+ 		line-height: 50px;
+ 		text-align: center;
+ 		display: none;
+ 		position: absolute;
+ 		top:60px;
+ 	}
+ 	.firstlayer .one{border-bottom: none; }
+ 	.secondlayer .secondary{display: block;}
+</style>
+    {% endblock %}
+	{% block forms %}
+	<div class="container">
+		<div class="row">
+			<div class="col-md-8 demo">
+				<ul class="firstlayer">
+					<li>正常博文</li>
+					<li>禁用博文</li>
+				</ul>
+				<ul class="secondlayer">
+					<li class="secondary">
+						<table style="width: 1000px;" border='1'>
+							<tr>
+								<th>标题</th>
+								<th>作者</th>
+								<th>分类</th>
+								<th>发布时间</th>
+								<th>操作</th>
+							</tr>
+    						{% for i in arts %}
+    						{% if i.Article.status == 1 %}
+							<tr>
+								<td>
+									<a href="{{ url_for('home.bloginfo',name=i.Users.name,aid=i.Article.id) }}">
+										{{ i.Article.title }}
+									</a>
+								</td>
+								<td>{{ i.Users.name }}</td>
+								<td>{{ i.Types.tname }}</td>
+								<td>{{ i.Article.addtime }}</td>
+								<td><a href="{{ url_for('admin.prohibit',id=i.Article.id) }}">屏蔽</a></td>
+							</tr>
+    						{% endif %}
+    						{% endfor %}
+    					</table>
+					</li>
+					<li>
+						<table style="width: 1000px;" border='1'>
+							<tr>
+								<th>标题</th>
+								<th>作者</th>
+								<th>分类</th>
+								<th>发布时间</th>
+								<th>操作</th>
+							</tr>
+    						{% for i in arts %}
+    						{% if i.Article.status != 1 %}
+							<tr>
+								<td>
+									<a href="{{ url_for('home.bloginfo',name=i.Users.name,aid=i.Article.id) }}">
+										{{ i.Article.title }}
+									</a>
+								</td>
+								<td>{{ i.Users.name }}</td>
+								<td>{{ i.Types.tname }}</td>
+								<td>{{ i.Article.addtime }}</td>
+								<td><a href="{{ url_for('admin.recover',id=i.Article.id)}}">恢复</a></td>
+							</tr>
+							{% endif %}
+    						{% endfor %}
+    					</table>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<script>
+		$('.firstlayer li').click(function(){
+			$(this).addClass('one').siblings().removeClass('one');
+			console.log($(this).index());
+			var index = $(this).index();
+			$('.secondlayer li').eq(index).addClass('secondary').siblings().removeClass('secondary');
+		});
+	</script>
+
+	{% endblock %}
