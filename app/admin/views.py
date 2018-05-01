@@ -14,7 +14,7 @@ def check_login():
             return '<script>alert("请先登录");location.href="/admin/login"</script>'
 
 # 后台首页
-@admin.route("/")
+@admin.route("/index")
 def index():
 	return render_template('admin/index.html')
 
@@ -52,12 +52,56 @@ def recover(id):
 	except:
 		return '<script>alert("恢复失败");location.href="/admin/blogs/"</script>'
 
-# 分类管理
+# 分类列表
 @admin.route("/typemanage/")
 def typemanage():
 	ty = db.session.query(Types).all()
 
 	return render_template("admin/typemanage.html",ty=ty)
+
+# 分类管理
+
+@admin.route("/typeedit/<tid>")
+def typeedit(tid):
+	ty = db.session.query(Types).filter_by(id=tid).first()
+	return render_template('admin/typechange.html',ty=ty)
+
+# 修改
+@admin.route("/typechange/<tid>",methods=['GET','POST'])
+def typechange(tid):
+	ty = db.session.query(Types).filter_by(id=tid).first()
+	ty.tname = request.form['name']
+	db.session.add(ty)
+	db.session.commit()
+	return '<script>alert("修改成功");location.href="/admin/typemanage/"</script>'
+
+# 分类删除
+@admin.route("/deltype/<tid>")
+def deltype(tid):
+	com = db.session.query(Types).filter_by(id=tid).first()
+	db.session.delete(com)
+	db.session.commit()
+	return '<script>alert("删除成功");location.href="/admin/typemanage/"</script>'
+
+
+# 评论列表
+@admin.route("/comment/")
+def comment():
+	cominfo = db.session.query(Comment,Article,Users)\
+	.filter(Comment.article_id == Article.id)\
+	.filter(Comment.user_id == Users.id)\
+	.all()
+
+	return render_template('admin/comment.html',cominfo=cominfo)
+
+
+# 评论管理
+@admin.route("/delcomment/<cid>")
+def delcomment(cid):
+	com = db.session.query(Comment).filter_by(id=cid).first()
+	db.session.delete(com)
+	db.session.commit()
+	return '<script>alert("删除成功");location.href="/admin/comment/"</script>'
 
 
 # 后台登录

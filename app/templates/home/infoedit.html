@@ -1,5 +1,5 @@
 {% extends 'home/index.html' %}
-    {% block title %}
+{% block title %}
     <title>首页</title>
      <link rel="icon" type="image/png" href="/static/assets/i/favicon.png">
     <link rel="apple-touch-icon-precomposed" href="/static/assets/i/app-icon72x72@2x.png">
@@ -27,12 +27,13 @@
         <div class="tpl-sidebar-user-panel">
             <div class="tpl-user-panel-slide-toggleable">
                 <div class="tpl-user-panel-profile-picture">
-                    <img src="/static/public/img/{{ uinfo.face }}" alt=""> </div>
+                    <img src="/static/public/img/{{ uedit.face }}" alt=""> 
+                </div>
                 <span class="user-panel-logged-in-text">
                     <i class="am-icon-circle-o am-text-success tpl-user-panel-status-icon">
-                        {{ uinfo.name }}
+                    	{{ uedit.name }}
                     </i>
-                </span>
+                </span><br>
                 <a href="javascript:;" class="tpl-user-panel-action-link">
                     <span class="am-icon-pencil"></span>账号设置
                 </a>
@@ -52,9 +53,8 @@
             </li>
             <!-- 会员管理 -->
             <li style="margin-left: 28px;margin-bottom: 20px;">
-                <a href="{{ url_for('home.infoedit',uid=uinfo.id) }}" class=" sidebar-nav-sub-title"  style="color:#868E8E;">
+                <a href="{{ url_for('home.infoedit',uid=uedit.id) }}" class=" sidebar-nav-sub-title" style="color:#868E8E;">
                     <i class="am-icon-table sidebar-nav-link-logo"></i> 个人资料修改
-                    
                 </a>
             </li>
         </ul>
@@ -63,26 +63,15 @@
 
     {% block flaots %}
     <div style="margin-top: 100px;">
-        <center  >
-            <table style="width: 400px;height: 350px;">
-                <tr>
-                <th>个人资料</th>
-                </tr>
-                <tr>
-                    <td>用户名:</td>
-                    <td>{{ uinfo.name }}</td>
-                </tr>
-                <tr>
-                    <td>Email:</td>
-                    <td>{{ uinfo.email }}</td>
-                </tr>
-                <tr>
-                    <td>手机:</td>
-                    <td>{{ uinfo.phone }}</td>
-                </tr>
-            </table>
-                <a href="{{ url_for('home.infoedit',uid=uinfo.id) }}" class="changeinfo">修改资料</a>
+        <center>
+            <form action="{{ url_for('home.infoupdate',uid=uedit.id) }}" method="post">
+                用户名:<span>{{ uedit.name }}</span><br>
+                邮箱:<input type="email" name="email" placeholder="{{ uedit.email }}"><br>
+                手机:<input type="phone" name="phone" placeholder="{{ uedit.phone }}"><br>
+                <button type="">确认修改</button>
+            </form>
         </center>
         </div>
+
 
     {% endblock %}

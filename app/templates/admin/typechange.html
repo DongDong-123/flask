@@ -1,0 +1,14 @@
+{% extends 'admin/index.html' %}
+
+	{% block css %}
+
+    {% endblock %}
+    {% block forms %}
+
+    <form action="{{ url_for('admin.typechange',tid=ty.id) }}" method="post">
+    	分类:<input type="text" name="name" placeholder="{{ ty.tname }}">
+    	<button type="">提交修改</button>
+
+    </form>
+
+    {% endblock %}

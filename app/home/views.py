@@ -23,7 +23,7 @@ def index():
     .filter(Article.uid == Users.id)\
     .filter(Article.status == 1)\
     .order_by(Article.addtime.desc()).all()
-    print(arts)
+    # print(arts)
 
     return render_template('home/index.html',arts=arts)
 
@@ -69,12 +69,31 @@ def login():
 # 个人中心
 @home.route("/personal/<uid>")
 def personal(uid):
-    print('11')
+    # print('11')
     # uinfo = db.session.query(Users).get(id=uid)
     uinfo = db.session.query(Users).filter_by(id=int(uid)).first()
-    print('uinfo',uinfo)
+    # print('uinfo',uinfo)
 
     return render_template("home/personal.html",uinfo=uinfo )
+
+# 修改个人信息
+@home.route("/infoedit/<uid>")
+def infoedit(uid):
+    uedit = db.session.query(Users).filter_by(id=uid).first()
+
+    return render_template("home/infoedit.html",uedit=uedit)
+
+#执行修改
+@home.route("/infoupdate/<uid>",methods=['GET',"POST"])
+def infoupdate(uid):
+    up = db.session.query(Users).filter_by(id=uid).first()
+    up.email = request.form['email']
+    up.phone = request.form['phone']
+
+    db.session.add(up)
+    db.session.commit()
+
+    return '<script>alert("资料修改成功");location.href="/personal/'+uid+'"</script>'
 
 # 发布博文
 @home.route("/write/",methods=['GET',"POST"])
@@ -142,20 +161,21 @@ def gettypes(pid):
     jsts = json.dumps(arr)
     return jsts
 
-
+# 博文编辑
 @home.route("/edit/<aid>/")
 def edit(aid):
     infos = db.session.query(Article,Tags)\
     .filter(Article.uid == Users.id)\
     .filter(Article.id == aid)\
     .first()
-    print('infos',infos)
-    print('infos.Tags.tagname',infos.Tags.tagname)
-    print('infos.Article.title',infos.Article.title)
-    print('infos.Article.context',infos.Article.context)
+    # print('infos',infos)
+    # print('infos.Tags.tagname',infos.Tags.tagname)
+    # print('infos.Article.title',infos.Article.title)
+    # print('infos.Article.context',infos.Article.context)
 
     return render_template("home/myblog/edit.html",infos=infos)
 
+# 执行更改
 @home.route("/Aupdate/<aid>",methods=['GET',"POST"])
 def Aupdate(aid):
     # 发布修改文章
@@ -203,12 +223,6 @@ def Aupdate(aid):
 
     uname = session['VipUsers']['uname']
     return '<script>alert("文章修改成功");location.href="/'+uname+'/"</script>'
-
-
-
-
-
-    # return 'update'
 
 
 # 博文详情,
