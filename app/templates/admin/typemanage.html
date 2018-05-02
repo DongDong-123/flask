@@ -32,7 +32,10 @@
     					                <td class="am-text-middle">{{ i.tname}}</td>
     					                <td class="am-text-middle">
     					                    <div class="tpl-table-black-operation">
-    					                        <a href="{{ url_for('admin.typeedit',tid=i.id) }}"> 
+    					                        <a href="{{ url_for('admin.typeadd',tid=i.id) }}"> 
+                                                    <i class="am-icon-pencil"></i>添加
+                                                </a>
+                                                <a href="{{ url_for('admin.typeedit',tid=i.id) }}"> 
     					                            <i class="am-icon-pencil"></i> 编辑
     					                        </a>
     					                        <a href="{{ url_for('admin.deltype',tid=i.id) }}" class="tpl-table-black-operation-del">

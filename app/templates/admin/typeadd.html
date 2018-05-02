@@ -1,0 +1,15 @@
+{% extends 'admin/index.html' %}
+
+	{% block css %}
+
+    {% endblock %}
+    {% block forms %}
+
+    <form action="{{ url_for('admin.addupdate',tid=ty.id) }}" method="post">
+    	所属分类:<input type="text" name="name" value="{{ ty.tname }}">
+    	新增分类: <input type="text" name="addname">
+    	<button type="">提交修改</button>
+
+    </form>
+
+    {% endblock %}

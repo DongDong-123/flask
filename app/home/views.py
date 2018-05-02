@@ -161,6 +161,50 @@ def gettypes(pid):
     jsts = json.dumps(arr)
     return jsts
 
+
+# ueditor读取配置文件
+@home.route('/ueditconfig/', methods=['GET', 'POST'])
+def ueditconfig():
+    # 导入地址
+    from app import BASE_DIR
+    # 获取请求动作
+    action = request.args.get('action')
+    result = {}
+    # 读取配置文件
+    if action == 'config':
+    # 初始化时，返回配置文件给客户端
+        with open(os.path.join(BASE_DIR,'static', 'ueditor', 'php',
+                               'config.json')) as fp:
+            try:
+                # 删除 `/**/` 之间的注释
+                CONFIG = json.loads(re.sub(r'\/\*.*\*\/', '', fp.read()))
+            except:
+                CONFIG = {}
+        result = CONFIG
+
+    # 文件上传
+    if action  == 'uploadimage':
+        upfile = request.files['upfile']  # 这个表单名称以配置文件为准
+        # upfile 为 FileStorage 对象
+        # 这里保存文件并返回相应的URL
+
+        Suffix = upfile.filename.split('.').pop()
+        filename = str(time.time())+str(random.randint(10000,99999))+'.'+Suffix
+        imgurl = '/static/uploads/'+filename
+        upfile.save(BASE_DIR+imgurl)
+
+        result = {
+            "state": "SUCCESS",
+            "url": imgurl,
+            "title": filename,
+            "original":filename
+        }
+
+
+    return json.dumps(result)
+
+
+
 # 博文编辑
 @home.route("/edit/<aid>/")
 def edit(aid):

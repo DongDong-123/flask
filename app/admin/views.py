@@ -60,7 +60,26 @@ def typemanage():
 	return render_template("admin/typemanage.html",ty=ty)
 
 # 分类管理
+# 添加
+@admin.route("/typeadd/<tid>")
+def typeadd(tid):
+	# tadd = Types()
+	ty = db.session.query(Types).filter_by(id=tid).first()
 
+	return render_template("admin/typeadd.html",ty=ty)
+# 执行添加
+@admin.route("/addupdate/<tid>",methods=['GET','POST'])
+def addupdate(tid):
+	adds = Types()
+	adds.tname = request.form['addname']
+	adds.pid = tid
+
+	db.session.add(adds)
+	db.session.commit()
+	return '<script>alert("添加成功");location.href="/admin/typemanage/"</script>'
+
+
+# 编辑
 @admin.route("/typeedit/<tid>")
 def typeedit(tid):
 	ty = db.session.query(Types).filter_by(id=tid).first()
@@ -115,9 +134,9 @@ def login():
             # 写入session
             session['AdminUsers'] = {'name':'超级管理员'}
 
-            return '<script>alert("登录成功");location.href="/admin/"</script>'
+            return '<script>alert("登录成功");location.href="/admin/index"</script>'
 
-        return '<script>alert("账号或密码错误");location.href="/admin/"</script>'
+        return '<script>alert("账号或密码错误");location.href="/admin/index"</script>'
 
 # 后台退出
 @admin.route('/logout/')
