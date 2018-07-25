@@ -11,12 +11,15 @@ flask框架学习
 
 #### 安装教程
 
-1. xxxx
-2. xxxx
-3. xxxx
+1. 安装PyMySQL
+2. 安装Flask
+3. 安装SQLAlchemy
+4. 安装Flask-SQLAlchemy
+
 
 #### 使用说明
 
-1. xxxx
-2. xxxx
-3. xxxx
+1. 后台登录地址：127.0.0.1:5000/admin/login,超级管理员密码：superadmin.com
+2. 前台可自行注册后登录，注册页面：127.0.0.1:5000/register
+登录页面：127.0.0.1:5000/login
+
